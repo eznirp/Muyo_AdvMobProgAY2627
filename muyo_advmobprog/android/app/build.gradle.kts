@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -34,9 +37,11 @@ android {
     }
 }
 
-kotlin {
+// Configure Kotlin JVM target via KotlinCompile tasks to be compatible
+// with different Kotlin/Gradle plugin versions.
+tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
