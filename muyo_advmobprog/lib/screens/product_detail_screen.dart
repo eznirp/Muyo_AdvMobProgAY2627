@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../models/product.dart';
+import '../services/cart_service.dart';
 import '../widgets/custom_text.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -26,7 +27,7 @@ class ProductDetailScreen extends StatelessWidget {
                 height: 280.h,
                 color: Theme.of(context).colorScheme.surface,
                 child: Hero(
-                  // Enhancement 2: The detail screen shares the card image.
+                  // Preserve the shared image transition from the product list.
                   tag: 'product-${product.id}',
                   child: Image.network(
                     mainImage,
@@ -67,17 +68,11 @@ class ProductDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-                    CustomText(
-                      text: product.description,
-                      fontSize: 14.0,
-                    ),
+                    CustomText(text: product.description, fontSize: 14.0),
                     const SizedBox(height: 24.0),
                     _DetailRow(label: 'Brand', value: _fallback(product.brand)),
                     _DetailRow(label: 'SKU', value: _fallback(product.sku)),
-                    _DetailRow(
-                      label: 'Stock',
-                      value: '${product.stock} items',
-                    ),
+                    _DetailRow(label: 'Stock', value: '${product.stock} items'),
                     _DetailRow(
                       label: 'Availability',
                       value: _fallback(product.availabilityStatus),
@@ -104,6 +99,33 @@ class ProductDetailScreen extends StatelessWidget {
                             .toList(),
                       ),
                     ],
+                    const SizedBox(height: 24.0),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        // Enhancement 3: Add the displayed product to user 1's cart.
+                        onPressed: () async {
+                          try {
+                            await CartService().addToCart(product.id, 1, 1);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Product added to cart'),
+                              ),
+                            );
+                          } catch (error) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Unable to add product: $error'),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.add_shopping_cart),
+                        label: const Text('Add to Cart'),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -140,12 +162,7 @@ class _DetailRow extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          Expanded(
-            child: CustomText(
-              text: value,
-              fontSize: 13.0,
-            ),
-          ),
+          Expanded(child: CustomText(text: value, fontSize: 13.0)),
         ],
       ),
     );

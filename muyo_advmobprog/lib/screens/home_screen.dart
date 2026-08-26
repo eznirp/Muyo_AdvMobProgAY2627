@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // rive is optional; keep import if animations are added later
+import 'cart_screen.dart';
 import 'product_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -45,9 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: PageView(
           physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
-          children: const [
-            ProductScreen(),
-          ],
+          children: const [ProductScreen(), CartScreen(embedded: true)],
           onPageChanged: (page) {
             setState(() {
               _selectedIndex = page;
@@ -58,27 +57,45 @@ class _HomeScreenState extends State<HomeScreen> {
           showSelectedLabels: false,
           showUnselectedLabels: false,
           items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.shop_2), label: 'Shop'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shop_2),
-              label: 'Shop',
+              icon: Icon(Icons.shopping_cart),
+              label: 'Cart',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chat',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
           currentIndex: _selectedIndex,
           onTap: onTappedBar,
         ),
+        floatingActionButton: _selectedIndex == 1
+            ? null
+            : FloatingActionButton(
+                // Enhancement 2: Chat is available as a floating action instead of bottom navigation.
+                onPressed: () {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Chat opened')));
+                },
+                child: const Icon(Icons.chat),
+              ),
       ),
     );
   }
 
   void onTappedBar(int value) {
+    if (value == 1) {
+      // Enhancement 1: The cart is available from the bottom navigation.
+      setState(() {
+        _selectedIndex = value;
+      });
+      _pageController.jumpToPage(value);
+      return;
+    }
+
+    if (value == 2) {
+      return;
+    }
+
     setState(() {
       _selectedIndex = value;
     });

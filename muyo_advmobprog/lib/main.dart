@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 // screens
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/cart_screen.dart';
 // providers
 import 'providers/theme_provider.dart';
 
@@ -41,6 +42,7 @@ class RoblesAdvMobProg extends StatelessWidget {
             routes: {
               '/home': (context) => const HomeScreen(),
               '/settings': (context) => const SettingsScreen(),
+              '/cart': (context) => const CartScreen(),
             },
           );
         },
