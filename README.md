@@ -23,3 +23,7 @@ for managing shared and more complex application state
 
 The app separates responsibilities using models, services, and screens. The User model represents API data, while UserService handles login and saves user information using SharedPreferences. The splash screen checks whether the user is logged in, the login screen authenticates the user, and the profile screen displays the saved user data.
 The cart uses CartService to retrieve data from DummyJSON using the user ID. FutureBuilder handles loading and error states, while setState, Provider, and ChangeNotifier manage local and shared application state.
+
+## Lab Activity 5: Discussion
+
+The app uses one UserService for two login methods: username login through DummyJSON, which is for demos and saves profile data locally, and email/password login through Firebase, which manages authentication and stores profiles in Firestore. This lets the lab demonstrate both REST API authentication and Firebase’s cloud storage, token management, and security rules.
