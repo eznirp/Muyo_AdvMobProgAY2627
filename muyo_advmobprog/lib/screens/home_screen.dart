@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // rive is optional; keep import if animations are added later
 import 'cart_screen.dart';
+import 'chat_screen.dart';
 import 'product_screen.dart';
 import 'profile_screen.dart';
 
@@ -76,11 +77,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ? null
             : FloatingActionButton(
                 // Enhancement 2: Chat is available as a floating action instead of bottom navigation.
-                onPressed: () {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('Chat opened')));
-                },
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => const ChatScreen()),
+                ),
                 child: const Icon(Icons.chat),
               ),
       ),

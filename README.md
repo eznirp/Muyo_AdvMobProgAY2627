@@ -27,3 +27,7 @@ The cart uses CartService to retrieve data from DummyJSON using the user ID. Fut
 ## Lab Activity 5: Discussion
 
 The app uses one UserService for two login methods: username login through DummyJSON, which is for demos and saves profile data locally, and email/password login through Firebase, which manages authentication and stores profiles in Firestore. This lets the lab demonstrate both REST API authentication and Firebase’s cloud storage, token management, and security rules.
+
+## Lab Activity 6: Discussion
+
+Firestore stores each Firebase user’s full profile in users/{uid} and limited chat details in public_profiles/{uid}. When two users chat, their sorted UIDs form a shared chat_rooms document, with messages stored in its messages subcollection. The app excludes the signed-in user from the chat list and blocks self-chat.

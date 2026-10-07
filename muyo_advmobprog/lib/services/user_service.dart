@@ -70,7 +70,27 @@ class UserService {
       final profile = user.toJson()
         ..remove('accessToken')
         ..['uid'] = firebaseUser.uid;
-      await _firestore.collection('users').doc(firebaseUser.uid).set(profile);
+      final publicProfile = {
+        'uid': firebaseUser.uid,
+        'username': user.username,
+        'firstName': user.firstName,
+        'lastName': user.lastName,
+        'image': user.image,
+      };
+      final email = (firebaseUser.email ?? user.email).trim().toLowerCase();
+      final batch = _firestore.batch()
+        ..set(_firestore.collection('users').doc(firebaseUser.uid), profile)
+        ..set(
+          _firestore.collection('public_profiles').doc(firebaseUser.uid),
+          publicProfile,
+        );
+      if (email.isNotEmpty) {
+        batch.set(
+          _firestore.collection('email_lookup').doc(Uri.encodeComponent(email)),
+          {'uid': firebaseUser.uid},
+        );
+      }
+      await batch.commit();
     }
 
     final prefs = await SharedPreferences.getInstance();
@@ -196,10 +216,16 @@ class UserService {
 
     final updatedUser = user.copyWith(username: username);
     if (user.loginType == LoginType.firebase) {
-      await _authenticatedUser.updateDisplayName(username);
-      await _firestore.collection('users').doc(_authenticatedUser.uid).set({
-        'username': username,
-      }, SetOptions(merge: true));
+      final firebaseUser = _authenticatedUser;
+      await firebaseUser.updateDisplayName(username);
+      final batch = _firestore.batch()
+        ..set(_firestore.collection('users').doc(firebaseUser.uid), {
+          'username': username,
+        }, SetOptions(merge: true))
+        ..set(_firestore.collection('public_profiles').doc(firebaseUser.uid), {
+          'username': username,
+        }, SetOptions(merge: true));
+      await batch.commit();
     } else {
       final response = await http.put(
         Uri.parse('$host/users/${user.id}'),
@@ -235,7 +261,18 @@ class UserService {
         password: password,
       );
       await user.reauthenticateWithCredential(credential);
-      await _firestore.collection('users').doc(user.uid).delete();
+      final accountEmail = (user.email ?? profile.email).trim().toLowerCase();
+      final batch = _firestore.batch()
+        ..delete(_firestore.collection('users').doc(user.uid))
+        ..delete(_firestore.collection('public_profiles').doc(user.uid));
+      if (accountEmail.isNotEmpty) {
+        batch.delete(
+          _firestore
+              .collection('email_lookup')
+              .doc(Uri.encodeComponent(accountEmail)),
+        );
+      }
+      await batch.commit();
       await user.delete();
     } else {
       final response = await http.delete(
